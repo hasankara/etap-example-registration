@@ -169,7 +169,7 @@ public class RegistrationSubscriberImpl implements IRegistrationSubscriber, IScr
 		String restUrl = "http://etaregister.etap.org.tr/eta-register-server.php";
 		EtapInfo etapInfo = new EtapInfo();
 		etapInfo.setRequest_type("0");
-		etapInfo.setMac_id(macID);
+		etapInfo.setMac_id(macID.toUpperCase());
 
 		ObjectMapper objectMapper= new ObjectMapper();
 		String data = null;
