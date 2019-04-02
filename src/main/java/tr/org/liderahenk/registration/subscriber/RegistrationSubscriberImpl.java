@@ -330,7 +330,7 @@ public class RegistrationSubscriberImpl implements IRegistrationSubscriber, IScr
 			if (organizationUnitDoesExist(incrementaldn) == false) {
 				logger.info(" {} entry adding to ldap hierarchy", ouValue);
 				Map<String, String[]> ouMap = new HashMap<String, String[]>();
-				ouMap.put("objectClass", new String[] { "top", "organizationalUnit" });
+				ouMap.put("objectClass", new String[] { "top", "organizationalUnit", "pardusLider" });
 				ouMap.put("ou", new String[] { ouValue });
 				ouMap.put("description", new String[] { "pardusDeviceGroup" });
 				ldapService.addEntry(incrementaldn, ouMap);
