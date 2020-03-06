@@ -119,8 +119,8 @@ public class RegistrationSubscriberImpl implements IRegistrationSubscriber, IScr
 				}
 
 				// Try to find related agent database record
-				List<? extends IAgent> agents = agentDao.findByProperty(IAgent.class, "jid",
-						message.getFrom().split("@")[0], 1);
+				List<? extends IAgent> agents = agentDao.findByProperty(IAgent.class, "dn",dn, 1);
+				
 				IAgent agent = agents != null && !agents.isEmpty() ? agents.get(0) : null;
 
 				if (agent != null) {
@@ -128,18 +128,32 @@ public class RegistrationSubscriberImpl implements IRegistrationSubscriber, IScr
 							"Agent already exists in database.If there is a changed property, it will be updated.");
 					alreadyExists = true;
 					// Update the record
-					agent = entityFactory.createAgent(agent, null, message.getPassword(), message.getHostname(),
+					agent = entityFactory.createAgent(agent, message.getFrom().split("@")[0], null, message.getPassword(), message.getHostname(),
 							message.getIpAddresses(), macAddress, message.getData());
 					agentDao.update(agent);
 				} else {
-					// Create new agent database record
-					logger.debug("Creating new agent record in database.");
-					agent = entityFactory.createAgent(null, message.getFrom().split("@")[0], dn, message.getPassword(),
-							message.getHostname(), message.getIpAddresses(), macAddress,
-							message.getData());
-					agentDao.save(agent);
+					
+					List<? extends IAgent> agentsJidList = agentDao.findByProperty(IAgent.class, "jid",message.getFrom().split("@")[0], 1);
+					IAgent agentsJid = agentsJidList != null && !agentsJidList.isEmpty() ? agentsJidList.get(0) : null;
+					
+					if(agentsJid != null) {
+						logger.debug(
+								"Agent already exists in database.If there is a changed property, it will be updated.");
+						alreadyExists = true;
+						// Update the record
+						agent = entityFactory.createAgent(agentsJid, null, dn, message.getPassword(), message.getHostname(),
+								message.getIpAddresses(), macAddress, message.getData());
+						agentDao.update(agent);
+						
+					}else {
+						// Create new agent database record
+						logger.debug("Creating new agent record in database.");
+						agent = entityFactory.createAgent(message.getFrom().split("@")[0], dn, message.getPassword(),
+								message.getHostname(), message.getIpAddresses(), macAddress,
+								message.getData());
+						agentDao.save(agent);
+					}
 				}
-
 				if (alreadyExists) {
 					logger.warn(
 							"Agent {} already exists! Updated its password and database properties with the values submitted.",
